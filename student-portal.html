@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Student Portal - CLEX LMS</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #000000, #001f4d);
+    color: #0ff;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .header {
+    background: rgba(0, 31, 77, 0.9);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 20px rgba(0, 255, 255, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header h1 {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    text-shadow: 0 0 10px #00ffff;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .logout-btn {
+    background: linear-gradient(90deg, #ff4444, #cc0000);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .logout-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
+  }
+
+  .main-content {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .course-card {
+    background: rgba(0, 31, 77, 0.9);
+    border: 2px solid #00ffff;
+    border-radius: 15px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(0, 255, 255, 0.2);
+  }
+
+  .course-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0, 255, 255, 0.4);
+  }
+
+  .course-card h3 {
+    color: #00ffff;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    min-height: 3rem;
+  }
+
+  .course-card p {
+    color: #88ffff;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .course-meta {
+    border-top: 1px solid rgba(0, 255, 255, 0.3);
+    padding-top: 1rem;
+    margin-top: 1rem;
+  }
+
+  .teacher-info, .course-date {
+    font-size: 0.9rem;
+    color: #66ffff;
+    margin-bottom: 0.5rem;
+  }
+
+  .enroll-btn {
+    width: 100%;
+    padding: 0.8rem;
+    background: linear-gradient(90deg, #00f6ff, #00477b);
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+  }
+
+  .enroll-btn:hover {
+    background: linear-gradient(90deg, #00ffff, #0068b7);
+    transform: scale(1.05);
+  }
+
+  .loading, .error-message {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
+  }
+
+  .error-message {
+    color: #ff4444;
+  }
+
+  .refresh-btn {
+    background: linear-gradient(90deg, #00ff88, #006633);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .refresh-btn:hover {
+    background: linear-gradient(90deg, #00ffaa, #008844);
+    transform: translateY(-2px);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .header {
+      padding: 1rem;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .main-content {
+      padding: 1rem;
+    }
+
+    .courses-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .course-card {
+      padding: 1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .header h1 {
+      font-size: 1.3rem;
+    }
+
+    .user-info {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .courses-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🎓 Student Portal - Available Courses</h1>
+  <div class="user-info">
+    <span>Welcome, <span id="username">Student</span></span>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="main-content">
+  <div style="text-align: center; margin-bottom: 2rem;">
+    <button class="refresh-btn" onclick="loadCourses()">🔄 Refresh Courses</button>
+  </div>
+  
+  <div class="courses-grid" id="coursesGrid">
+    <div class="loading">Loading courses...</div>
+  </div>
+</div>
+
+<script>
+// Get username from localStorage
+document.getElementById('username').textContent = localStorage.getItem('username') || 'Student';
+
+// Check if user is actually a student
+if (localStorage.getItem('userRole') !== 'student') {
+  alert('Access denied. Please login as a student.');
+  window.location.href = 'index.html';
+  throw new Error('Access denied');
+}
+
+async function loadCourses() {
+  const coursesGrid = document.getElementById('coursesGrid');
+  coursesGrid.innerHTML = '<div class="loading">🔄 Loading courses...</div>';
+
+  try {
+    console.log('Fetching courses from API...');
+    const response = await fetch('/api/courses');
+    
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status}`);
+    }
+    
+    const courses = await response.json();
+    console.log('Courses loaded:', courses);
+    
+    if (courses.length === 0) {
+      coursesGrid.innerHTML = `
+        <div class="error-message">
+          No courses available yet.<br>
+          <small>Teachers will add courses soon.</small>
+        </div>
+      `;
+      return;
+    }
+
+    renderCourses(courses);
+    
+  } catch (error) {
+    console.error('Error loading courses:', error);
+    coursesGrid.innerHTML = `
+      <div class="error-message">
+        ❌ Error loading courses: ${error.message}<br>
+        <small>Make sure the Flask server is running on port 5000</small><br>
+        <button class="refresh-btn" onclick="loadCourses()">Try Again</button>
+      </div>
+    `;
+  }
+}
+
+function renderCourses(courses) {
+  const coursesGrid = document.getElementById('coursesGrid');
+  coursesGrid.innerHTML = '';
+
+  courses.forEach(course => {
+    const courseDate = course.created_at ? new Date(course.created_at) : new Date();
+    
+    const courseCard = document.createElement('div');
+    courseCard.className = 'course-card';
+    courseCard.innerHTML = `
+      <h3>${escapeHtml(course.title)}</h3>
+      <p>${escapeHtml(course.description || 'No description available.')}</p>
+      <div class="course-meta">
+        <div class="teacher-info">👨‍🏫 By: ${escapeHtml(course.teacher_name || 'Teacher')}</div>
+        <div class="course-date">📅 Added: ${courseDate.toLocaleDateString()}</div>
+        <button class="enroll-btn" onclick="enrollCourse('${course._id}', '${escapeHtml(course.title)}')">
+          🚀 Enroll Now
+        </button>
+      </div>
+    `;
+    
+    coursesGrid.appendChild(courseCard);
+  });
+}
+
+function escapeHtml(unsafe) {
+  if (!unsafe) return '';
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+async function enrollCourse(courseId, courseTitle) {
+  try {
+    const enrollBtn = event.target;
+    const originalText = enrollBtn.textContent;
+    
+    enrollBtn.textContent = '⏳ Enrolling...';
+    enrollBtn.disabled = true;
+    
+    console.log('Enrolling in course:', courseId);
+    
+    const response = await fetch('/api/courses/enroll', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        course_id: courseId,
+        course_title: courseTitle,
+        student_id: 'student_' + Math.random().toString(36).substr(2, 9)
+      })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      showMessage(`✅ Successfully enrolled in "${courseTitle}"!`, true);
+      setTimeout(() => {
+        alert(`You have been enrolled in "${courseTitle}"!\nEnrollment ID: ${result.enrollment_id}`);
+      }, 1000);
+    } else {
+      const error = await response.json();
+      throw new Error(error.error || 'Enrollment failed');
+    }
+  } catch (error) {
+    console.error('Enrollment error:', error);
+    showMessage('❌ Enrollment error: ' + error.message, false);
+    
+    const enrollBtn = event.target;
+    enrollBtn.textContent = '🚀 Enroll Now';
+    enrollBtn.disabled = false;
+  }
+}
+
+function showMessage(message, isSuccess = true) {
+  const messageDiv = document.createElement('div');
+  messageDiv.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: ${isSuccess ? 'rgba(0, 255, 136, 0.9)' : 'rgba(255, 68, 68, 0.9)'};
+    color: ${isSuccess ? '#000' : '#fff'};
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    z-index: 1000;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  `;
+  messageDiv.textContent = message;
+  
+  document.body.appendChild(messageDiv);
+  
+  setTimeout(() => {
+    if (messageDiv.parentNode) {
+      messageDiv.parentNode.removeChild(messageDiv);
+    }
+  }, 3000);
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = 'index.html';
+}
+
+// Load courses when page loads
+window.addEventListener('DOMContentLoaded', loadCourses);
+
+// Add some sample data if no courses exist (for testing)
+window.addEventListener('load', () => {
+  // Check if we need to add sample courses
+  setTimeout(() => {
+    fetch('/api/courses')
+      .then(res => res.json())
+      .then(courses => {
+        if (courses.length === 0) {
+          console.log('No courses found. You can add courses from the teacher portal.');
+        }
+      })
+      .catch(err => {
+        console.error('Failed to check courses:', err);
+      });
+  }, 1000);
+});
+</script>
+
+</body>
+</html>

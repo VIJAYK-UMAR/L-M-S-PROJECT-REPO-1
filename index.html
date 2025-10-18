@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CLEX LMS - Login</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body, html {
+    height: 100%;
+    background: #000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+  }
+
+  /* Animation Container */
+  #animationContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 60% 40%, #2AC8FC 0%, #14193a 60%, #0a1429 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 1s ease;
+  }
+
+  .logo {
+    font-family: 'Arial Black', sans-serif;
+    font-weight: bold;
+    font-size: clamp(3rem, 8vw, 5rem);
+    letter-spacing: 0.3em;
+    color: #23e5ff;
+    text-shadow: 0 0 30px #38f1ff;
+    display: flex;
+    margin-bottom: 2rem;
+  }
+
+  .logo span {
+    opacity: 0;
+    transform: translateY(90px) scale(2);
+    filter: blur(8px);
+    animation: popIn 0.65s cubic-bezier(0.68,-0.55,0.27,1.55) forwards;
+  }
+
+  .logo span:nth-child(1) { animation-delay: 0s; }
+  .logo span:nth-child(2) { animation-delay: 0.2s; }
+  .logo span:nth-child(3) { animation-delay: 0.38s; }
+  .logo span:nth-child(4) { animation-delay: 0.56s; }
+
+  @keyframes popIn {
+    0% {
+      opacity: 0;
+      transform: translateY(90px) scale(2);
+      filter: blur(8px);
+    }
+    80% {
+      opacity: 1;
+      transform: translateY(-18px) scale(1.07);
+      filter: blur(1px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+  }
+
+  .slogan {
+    opacity: 0;
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    letter-spacing: 0.12em;
+    color: #8cf0ff;
+    text-shadow: 0 2px 24px #22d2ff;
+    animation: appearWords 0.8s 1.2s cubic-bezier(.4,2.5,.5,1) forwards;
+  }
+
+  @keyframes appearWords {
+    from { 
+      opacity: 0; 
+      letter-spacing: 1.3em; 
+    }
+    to { 
+      opacity: 1; 
+      letter-spacing: 0.12em;
+    }
+  }
+
+  /* Login Container */
+  #loginContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #0a1429;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.5s ease;
+    z-index: 900;
+  }
+
+  #loginContainer.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .bg-waves {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .wave {
+    position: absolute;
+    width: 120vw;
+    height: 32vh;
+    left: -10vw;
+    background: linear-gradient(90deg, rgba(0,225,255,0.21) 0%, rgba(2,19,59,0) 100%);
+    filter: blur(24px);
+    opacity: 0.75;
+    animation: waveAnim1 13s ease-in-out infinite alternate;
+  }
+
+  .wave.wave2 {
+    top: 27%;
+    background: linear-gradient(90deg, rgba(17,68,255,0.19) 0%, rgba(2,19,59,0) 100%);
+    animation: waveAnim2 18s ease-in-out infinite alternate;
+    opacity: 0.59;
+  }
+
+  .wave.wave3 {
+    top: 62%;
+    background: linear-gradient(90deg, rgba(0,238,238,0.15) 0%, rgba(25,30,53,0) 100%);
+    animation: waveAnim3 22s linear infinite alternate;
+    opacity: 0.38;
+  }
+
+  @keyframes waveAnim1 {
+    0% { transform: translateY(0) scaleX(1.03); }
+    50% { transform: translateY(8vh) scaleX(1); }
+    100% { transform: translateY(-12vh) scaleX(0.99); }
+  }
+
+  @keyframes waveAnim2 {
+    0% { transform: translateX(0) scaleX(1); }
+    50% { transform: translateX(8vw) scaleX(1.05); }
+    100% { transform: translateX(-16vw) scaleX(0.98); }
+  }
+
+  @keyframes waveAnim3 {
+    0% { transform: translateY(0) scaleX(1); }
+    50% { transform: translateY(-9vh) scaleX(1.1); }
+    100% { transform: translateY(5vh) scaleX(0.95); }
+  }
+
+  /* Login Form */
+  .form-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(20,24,40,0.95);
+    border-radius: 20px;
+    padding: 2.5rem;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 20px 40px rgba(0, 179, 255, 0.3);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+  }
+
+  .form-wrapper {
+    display: flex;
+    width: 200%;
+    transition: transform 0.5s ease;
+  }
+
+  .form-wrapper.register-active {
+    transform: translateX(-50%);
+  }
+
+  form {
+    width: 50%;
+    padding: 0 1rem;
+    flex-shrink: 0;
+  }
+
+  h2 {
+    color: #30c7ff;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    text-shadow: 0 0 14px #00bfff;
+  }
+
+  .input-field {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(20,30,55,0.8);
+    border: 2px solid #1abfff;
+    border-radius: 8px;
+    color: #d0eaff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  input::placeholder {
+    color: transparent;
+  }
+
+  input:focus, select:focus {
+    border-color: #0afffb;
+    background: rgba(40,70,115,0.4);
+    outline: none;
+    box-shadow: 0 0 15px rgba(10, 255, 251, 0.3);
+  }
+
+  label {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    color: #67c7ff;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    background: rgba(20,24,40,0.9);
+    padding: 0 0.5rem;
+  }
+
+  input:focus + label,
+  input:not(:placeholder-shown) + label,
+  select:focus + label,
+  select:not([value=""]) + label {
+    top: -0.5rem;
+    left: 0.5rem;
+    font-size: 0.8rem;
+    color: #0afffb;
+  }
+
+  button {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(90deg, #00c3ff, #1a58ff);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+  }
+
+  button:hover {
+    background: linear-gradient(90deg, #1a58ff, #00c3ff);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 179, 255, 0.4);
+  }
+
+  .toggle-link {
+    text-align: center;
+    color: #01aaff;
+    cursor: pointer;
+    margin-top: 1rem;
+    display: block;
+    text-decoration: none;
+  }
+
+  .toggle-link:hover {
+    color: #0afffb;
+    text-decoration: underline;
+  }
+
+  .error-message {
+    color: #ff3a5a;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    display: none;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .form-container {
+      padding: 2rem 1.5rem;
+      width: 95%;
+    }
+
+    .logo {
+      letter-spacing: 0.2em;
+    }
+
+    .form-wrapper {
+      width: 200%;
+    }
+
+    form {
+      padding: 0 0.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .form-container {
+      padding: 1.5rem 1rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    input, select {
+      padding: 0.8rem;
+    }
+
+    button {
+      padding: 0.8rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Audio for intro sound -->
+<audio id="introSound" preload="auto">
+  <source src="intro-sound.mp3" type="audio/mpeg">
+  <source src="intro-sound.wav" type="audio/wav">
+  <source src="intro-sound.ogg" type="audio/ogg">
+</audio>
+
+<!-- Animation Container -->
+<div id="animationContainer">
+  <div class="logo">
+    <span>C</span><span>L</span><span>E</span><span>X</span>
+  </div>
+  <div class="slogan">Create • Learn • Explore • Experience</div>
+</div>
+
+<!-- Login Container -->
+<div id="loginContainer">
+  <div class="bg-waves">
+    <div class="wave"></div>
+    <div class="wave wave2"></div>
+    <div class="wave wave3"></div>
+  </div>
+
+  <div class="form-container">
+    <div class="form-wrapper" id="formWrapper">
+      <!-- Login Form -->
+      <form id="loginForm">
+        <h2>Login</h2>
+        <div class="input-field">
+          <input type="email" id="loginEmail" placeholder=" " required />
+          <label for="loginEmail">Email</label>
+          <div class="error-message" id="loginEmailError">Enter a valid email address</div>
+        </div>
+        <div class="input-field">
+          <input type="password" id="loginPassword" placeholder=" " required />
+          <label for="loginPassword">Password</label>
+        </div>
+        <button type="submit">Log In</button>
+        <a class="toggle-link" onclick="showRegisterForm()">New user? Register here</a>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerForm">
+        <h2>Register</h2>
+        <div class="input-field">
+          <input type="text" id="regName" placeholder=" " required />
+          <label for="regName">Full Name</label>
+        </div>
+        <div class="input-field">
+          <input type="email" id="regEmail" placeholder=" " required />
+          <label for="regEmail">Email</label>
+          <div class="error-message" id="regEmailError">Enter a valid email address</div>
+        </div>
+        <div class="input-field">
+          <input type="password" id="regPassword" placeholder=" " required minlength="6" />
+          <label for="regPassword">Password (min 6 chars)</label>
+        </div>
+        <div class="input-field">
+          <select id="regRole" required>
+            <option value="">Select Role</option>
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+          </select>
+          <label for="regRole">Role</label>
+        </div>
+        <button type="submit">Register</button>
+        <a class="toggle-link" onclick="showLoginForm()">Already have an account? Log in</a>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Animation and transition
+const animationContainer = document.getElementById('animationContainer');
+const loginContainer = document.getElementById('loginContainer');
+const formWrapper = document.getElementById('formWrapper');
+const introSound = document.getElementById('introSound');
+
+// Play intro sound when animation starts
+setTimeout(() => {
+  try {
+    introSound.volume = 0.3;
+    introSound.play().catch(e => {
+      console.log('Audio play failed:', e);
+    });
+  } catch (e) {
+    console.log('Audio error:', e);
+  }
+}, 500);
+
+// Auto transition after animation
+setTimeout(() => {
+  animationContainer.style.opacity = '0';
+  setTimeout(() => {
+    loginContainer.classList.add('active');
+    animationContainer.style.display = 'none';
+  }, 1000);
+}, 4000);
+
+// Form toggle functionality
+function showRegisterForm() {
+  formWrapper.classList.add('register-active');
+  clearErrors();
+}
+
+function showLoginForm() {
+  formWrapper.classList.remove('register-active');
+  clearErrors();
+}
+
+function clearErrors() {
+  document.getElementById('loginEmailError').style.display = 'none';
+  document.getElementById('regEmailError').style.display = 'none';
+}
+
+// Initialize form fields with placeholder
+document.querySelectorAll('input').forEach(input => {
+  input.setAttribute('placeholder', ' ');
+});
+
+// Form submissions
+document.getElementById('loginForm').onsubmit = async function(e) {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  
+  // Simple authentication
+  if (email && password) {
+    const role = email.includes('teacher') ? 'teacher' : 'student';
+    localStorage.setItem('userRole', role);
+    localStorage.setItem('username', email.split('@')[0] || 'User');
+    
+    // Redirect to portals
+    if (role === 'student') {
+      window.location.href = 'student-portal.html';
+    } else {
+      window.location.href = 'teacher-portal.html';
+    }
+  } else {
+    showMessage('Please enter both email and password', false);
+  }
+};
+
+document.getElementById('registerForm').onsubmit = async function(e) {
+  e.preventDefault();
+  const name = document.getElementById('regName').value;
+  const email = document.getElementById('regEmail').value;
+  const password = document.getElementById('regPassword').value;
+  const role = document.getElementById('regRole').value;
+  
+  if (name && email && password && role) {
+    localStorage.setItem('userRole', role);
+    localStorage.setItem('username', name);
+    
+    // Redirect to portals
+    if (role === 'student') {
+      window.location.href = 'student-portal.html';
+    } else {
+      window.location.href = 'teacher-portal.html';
+    }
+  } else {
+    showMessage('Please fill all fields', false);
+  }
+};
+
+function showMessage(message, isSuccess = true) {
+  const messageDiv = document.createElement('div');
+  messageDiv.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: ${isSuccess ? 'rgba(0, 255, 136, 0.9)' : 'rgba(255, 68, 68, 0.9)'};
+    color: ${isSuccess ? '#000' : '#fff'};
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    z-index: 1000;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  `;
+  messageDiv.textContent = message;
+  
+  document.body.appendChild(messageDiv);
+  
+  setTimeout(() => {
+    if (messageDiv.parentNode) {
+      messageDiv.parentNode.removeChild(messageDiv);
+    }
+  }, 3000);
+}
+
+// Check if already logged in
+window.addEventListener('load', () => {
+  const userRole = localStorage.getItem('userRole');
+  if (userRole) {
+    // Skip animation if already logged in
+    animationContainer.style.display = 'none';
+    loginContainer.classList.add('active');
+    
+    // Auto-redirect if already logged in
+    setTimeout(() => {
+      if (userRole === 'student') {
+        window.location.href = 'student-portal.html';
+      } else if (userRole === 'teacher') {
+        window.location.href = 'teacher-portal.html';
+      }
+    }, 1000);
+  }
+});
+
+// Add click handler to skip animation
+animationContainer.addEventListener('click', () => {
+  animationContainer.style.opacity = '0';
+  setTimeout(() => {
+    loginContainer.classList.add('active');
+    animationContainer.style.display = 'none';
+  }, 500);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Teacher Dashboard - CLEX LMS</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f003d, #2c005e);
+    color: #ff90c9;
+    min-height: 100vh;
+  }
+
+  .header {
+    background: rgba(38, 0, 81, 0.9);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 20px rgba(255, 144, 201, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header h1 {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    text-shadow: 0 0 10px #ff90c9;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .logout-btn {
+    background: linear-gradient(45deg, #ff3387, #cc0066);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .logout-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 51, 135, 0.4);
+  }
+
+  .main-content {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .content-section {
+    background: rgba(38, 0, 81, 0.8);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 25px rgba(255, 144, 201, 0.3);
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #ff7fc6;
+    font-weight: bold;
+  }
+
+  input, textarea, select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #ff90c9;
+    border-radius: 8px;
+    background: rgba(58, 0, 105, 0.8);
+    color: #ffc0d8;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: #ffa4d9;
+    outline: none;
+    box-shadow: 0 0 15px rgba(255, 144, 201, 0.5);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .submit-btn {
+    background: linear-gradient(45deg, #ff90c9, #6a00ff);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+
+  .submit-btn:hover {
+    background: linear-gradient(45deg, #6a00ff, #ff90c9);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 144, 201, 0.4);
+  }
+
+  .courses-list {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .course-item {
+    background: rgba(58, 0, 105, 0.8);
+    border: 2px solid #ff90c9;
+    border-radius: 10px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    transition: all 0.3s ease;
+  }
+
+  .course-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(255, 144, 201, 0.4);
+  }
+
+  .course-details {
+    flex: 1;
+  }
+
+  .course-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #ff90c9;
+    margin-bottom: 0.5rem;
+  }
+
+  .course-description {
+    color: #ffc0d8;
+    margin-bottom: 0.5rem;
+  }
+
+  .course-date {
+    font-size: 0.9rem;
+    color: #ff90c9;
+    opacity: 0.7;
+  }
+
+  .course-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .action-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+  }
+
+  .edit-btn {
+    background: linear-gradient(45deg, #6a00ff, #8a2be2);
+    color: white;
+  }
+
+  .delete-btn {
+    background: linear-gradient(45deg, #ff3387, #ff0066);
+    color: white;
+  }
+
+  .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+
+  .message {
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .success {
+    background: rgba(0, 255, 136, 0.2);
+    color: #00ff88;
+    border: 1px solid #00ff88;
+  }
+
+  .error {
+    background: rgba(255, 68, 68, 0.2);
+    color: #ff4444;
+    border: 1px solid #ff4444;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .header {
+      padding: 1rem;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .main-content {
+      padding: 1rem;
+    }
+
+    .content-section {
+      padding: 1.5rem;
+    }
+
+    .course-item {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .course-actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .header h1 {
+      font-size: 1.3rem;
+    }
+
+    .user-info {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .course-actions {
+      flex-direction: column;
+    }
+
+    .action-btn {
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>👨‍🏫 Teacher Dashboard</h1>
+  <div class="user-info">
+    <span>Welcome, <span id="username">Teacher</span></span>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="main-content">
+  <!-- Add Course Section -->
+  <div class="content-section">
+    <h2 style="margin-bottom: 1.5rem; color: #ff90c9;">Add New Course</h2>
+    <form id="courseForm">
+      <div class="form-group">
+        <label for="title">Course Title</label>
+        <input type="text" id="title" name="title" required />
+      </div>
+      
+      <div class="form-group">
+        <label for="description">Course Description</label>
+        <textarea id="description" name="description" required></textarea>
+      </div>
+      
+      <button type="submit" class="submit-btn">Add Course</button>
+    </form>
+    <div id="message"></div>
+  </div>
+
+  <!-- My Courses Section -->
+  <div class="content-section">
+    <h2 style="margin-bottom: 1.5rem; color: #ff90c9;">My Courses</h2>
+    <div class="courses-list" id="coursesList">
+      <div class="loading">Loading your courses...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+    // Get username from localStorage
+document.getElementById('username').textContent = localStorage.getItem('username') || 'Teacher';
+
+// Check if user is actually a teacher
+if (localStorage.getItem('userRole') !== 'teacher') {
+  alert('Access denied. Please login as a teacher.');
+  window.location.href = 'index.html';
+  throw new Error('Access denied');
+}
+
+let courses = [];
+
+// Load teacher's courses
+async function loadTeacherCourses() {
+  const coursesList = document.getElementById('coursesList');
+  
+  try {
+    console.log('Loading teacher courses...');
+    const response = await fetch('/api/teacher/courses?teacher_id=default_teacher');
+    
+    if (response.ok) {
+      courses = await response.json();
+      console.log('Teacher courses loaded:', courses);
+      renderCourses();
+      showMessage('Courses loaded successfully!', true);
+    } else {
+      throw new Error('Failed to load courses');
+    }
+  } catch (error) {
+    console.error('Error loading courses:', error);
+    showMessage('Error loading courses: ' + error.message, false);
+    coursesList.innerHTML = '<div class="error">Error loading courses. Make sure server is running.</div>';
+  }
+}
+
+function renderCourses() {
+  const coursesList = document.getElementById('coursesList');
+  
+  if (courses.length === 0) {
+    coursesList.innerHTML = '<div class="message">No courses added yet. Create your first course above!</div>';
+    return;
+  }
+
+  coursesList.innerHTML = '';
+  
+  courses.forEach(course => {
+    const courseItem = document.createElement('div');
+    courseItem.className = 'course-item';
+    
+    const courseDate = course.created_at ? new Date(course.created_at) : new Date();
+    
+    courseItem.innerHTML = `
+      <div class="course-details">
+        <div class="course-title">${escapeHtml(course.title)}</div>
+        <div class="course-description">${escapeHtml(course.description)}</div>
+        <div class="course-date">Created: ${courseDate.toLocaleDateString()}</div>
+        <div class="course-date">Students enrolled: ${course.enrolled_count || 0}</div>
+      </div>
+      <div class="course-actions">
+        <button class="action-btn edit-btn" onclick="editCourse('${course._id}')">Edit</button>
+        <button class="action-btn delete-btn" onclick="deleteCourse('${course._id}', '${escapeHtml(course.title)}')">Delete</button>
+      </div>
+    `;
+    
+    coursesList.appendChild(courseItem);
+  });
+}
+
+// Add new course
+document.getElementById('courseForm').onsubmit = async function(e) {
+  e.preventDefault();
+  
+  const title = document.getElementById('title').value.trim();
+  const description = document.getElementById('description').value.trim();
+  
+  if (!title || !description) {
+    showMessage('Please fill all fields.', false);
+    return;
+  }
+
+  try {
+    const courseData = {
+      title: title,
+      description: description,
+      teacher_id: 'default_teacher',
+      teacher_name: localStorage.getItem('username') || 'Teacher'
+    };
+
+    console.log('Creating course:', courseData);
+    
+    const response = await fetch('/api/courses', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(courseData)
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      showMessage(`Course "${title}" added successfully!`, true);
+      document.getElementById('courseForm').reset();
+      loadTeacherCourses(); // Reload courses list
+    } else {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create course');
+    }
+  } catch (error) {
+    showMessage('Error: ' + error.message, false);
+  }
+};
+
+// Delete course
+async function deleteCourse(courseId, courseTitle) {
+  if (!confirm(`Are you sure you want to delete "${courseTitle}"? This action cannot be undone.`)) {
+    return;
+  }
+
+  try {
+    console.log('Deleting course:', courseId);
+    
+    const response = await fetch(`/api/courses/${courseId}`, {
+      method: 'DELETE'
+    });
+
+    if (response.ok) {
+      showMessage(`Course "${courseTitle}" deleted successfully!`, true);
+      loadTeacherCourses();
+    } else {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to delete course');
+    }
+  } catch (error) {
+    showMessage('Error deleting course: ' + error.message, false);
+  }
+}
+
+// Edit course
+function editCourse(courseId) {
+  const course = courses.find(c => c._id === courseId);
+  if (course) {
+    const newTitle = prompt('Enter new course title:', course.title);
+    if (newTitle === null) return; // User cancelled
+    
+    const newDescription = prompt('Enter new course description:', course.description);
+    if (newDescription === null) return; // User cancelled
+    
+    if (newTitle && newDescription) {
+      updateCourse(courseId, newTitle, newDescription);
+    } else {
+      showMessage('Both title and description are required.', false);
+    }
+  }
+}
+
+async function updateCourse(courseId, title, description) {
+  try {
+    console.log('Updating course:', courseId);
+    
+    const response = await fetch(`/api/courses/${courseId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title: title,
+        description: description
+      })
+    });
+
+    if (response.ok) {
+      showMessage('Course updated successfully!', true);
+      loadTeacherCourses();
+    } else {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update course');
+    }
+  } catch (error) {
+    showMessage('Error updating course: ' + error.message, false);
+  }
+}
+
+function escapeHtml(unsafe) {
+  if (!unsafe) return '';
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function showMessage(msg, isSuccess = true) {
+  const messageDiv = document.getElementById('message');
+  messageDiv.textContent = msg;
+  messageDiv.className = isSuccess ? 'message success' : 'message error';
+  
+  setTimeout(() => {
+    messageDiv.textContent = '';
+    messageDiv.className = 'message';
+  }, 4000);
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = 'index.html';
+}
+
+// Load courses when page loads
+window.addEventListener('DOMContentLoaded', loadTeacherCourses);
+</script>
+
+</body>
+</html>
